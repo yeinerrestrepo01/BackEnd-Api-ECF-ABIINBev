@@ -1,0 +1,44 @@
+﻿using ECF.Core.Entities.Entity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ECF.Core.Repository.Core.Configurations
+{
+    public class DocumentoOriginalNCFConfiguration : BaseConfiguration<DocumentoOriginalNCF>
+    {
+        public override void Configure(EntityTypeBuilder<DocumentoOriginalNCF> builder)
+        {
+            builder.ToTable("DocumentoOriginal", "ECF");
+
+            builder.HasKey(p => new { p.Id });
+            builder.Property(p => p.IdSupport).HasColumnName("IdSupport");
+            builder.Property(p => p.IDInvoice).HasColumnName("IDInvoice");
+            builder.Property(p => p.IdCompany).HasColumnName("IdCompany");
+            builder.Property(p => p.IdOrder).HasColumnName("IdOrder");
+            builder.Property(p => p.IdCustumer).HasColumnName("IdCustumer");
+            builder.Property(p => p.NcfType).HasColumnName("NcfType");
+            builder.Property(p => p.NCF).HasColumnName("NCF");
+            builder.Property(p => p.IdProduct).HasColumnName("IdProduct");
+            builder.Property(p => p.NSeq).HasColumnName("NSeq");
+            builder.Property(p => p.Amount).HasColumnName("Amount");
+            builder.Property(p => p.IdUnitMeasureType).HasColumnName("IdUnitMeasureType");
+            builder.Property(p => p.FreeGoods).HasColumnName("FreeGoods");
+            builder.Property(p => p.BrutoTotal).HasColumnName("BrutoTotal");
+            builder.Property(p => p.DescuentoAmount).HasColumnName("DescuentoAmount");
+            builder.Property(p => p.TaxAmount).HasColumnName("TaxAmount");
+            builder.Property(p => p.Isc).HasColumnName("Isc");
+            builder.Property(p => p.Isce).HasColumnName("Isce");
+            builder.Property(p => p.InterestValue).HasColumnName("InterestValue");
+            builder.Property(p => p.Transport).HasColumnName("Transport");
+            builder.Property(p => p.NetAmount).HasColumnName("NetAmount");
+            builder.Property(p => p.GroupPrice).HasColumnName("GroupPrice");
+            builder.Property(p => p.TipoCenlacion).HasColumnName("TipoCenlacion");
+            builder.Property(p => p.TipoSapCancelacion).HasColumnName("TipoSapCancelacion");
+            builder.Property(p => p.NCFCancelacion).HasColumnName("NCFCancelacion");
+
+            #region NavigationProperties
+            builder.HasOne(p => p.SolitudSoporteDocumento).WithMany().HasForeignKey(x=> x.IdSupport);
+            #endregion
+        }
+    }
+}
