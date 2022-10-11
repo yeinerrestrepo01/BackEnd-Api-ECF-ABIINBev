@@ -6,7 +6,7 @@
         public string? IdCompany { get; set; }
         public string? IdOrder { get; set; }
         public string? IdCustumer { get; set; }
-        public string? NcfType { get; set; }
+        public string NcfType { get; set; }
         public string? NCF { get; set; }
         public string? IdProduct { get; set; }
         public int NSeq { get; set; }

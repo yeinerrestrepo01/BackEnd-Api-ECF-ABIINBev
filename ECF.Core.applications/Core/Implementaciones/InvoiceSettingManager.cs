@@ -10,14 +10,8 @@ namespace ECF.Core.applications.Core.Implementaciones
     /// </summary>
     public class InvoiceSettingManager : IInvoiceSettingManager
     {
-        /// <summary>
-        /// Propiedad de interfas ICorreccionDocumentosManager
-        /// </summary>
         private readonly ICorreccionDocumentosManager _correccionDocumentosManager;
 
-        /// <summary>
-        /// Propiedad de interfas IConfiguracionTipoNCFManager
-        /// </summary>
         private readonly IConfiguracionTipoNCFManager _configuracionTipoNCFManager;
 
         private readonly IVitsaConsultaFacturasManager _vitsaConsultaFacturasManager;
@@ -27,6 +21,8 @@ namespace ECF.Core.applications.Core.Implementaciones
         public readonly IMapper _mapper;
 
         public readonly IDocumentoOriginalNCFManager _documentoOriginalNCFManager;
+
+        private readonly IDocumentoCorreccionNCFManager _documentoCorreccionNCFManager;
 
 
         /// <summary>
@@ -39,12 +35,14 @@ namespace ECF.Core.applications.Core.Implementaciones
         /// <param name="vitsaConsultaFacturasManager"></param>
         /// <param name="solitudSoporteDocumentoManager"></param>
         /// <param name="mapper"></param>
+        /// <param name="documentoCorreccionNCFManager"></param>
         public InvoiceSettingManager(
             ICorreccionDocumentosManager correccionDocumentosManager,
             IConfiguracionTipoNCFManager configuracionTipoNCFManager,
             IVitsaConsultaFacturasManager vitsaConsultaFacturasManager,
             ISolitudSoporteDocumentoManager solitudSoporteDocumentoManager,
-            IMapper mapper, IDocumentoOriginalNCFManager documentoOriginalNCFManager)
+            IMapper mapper, IDocumentoOriginalNCFManager documentoOriginalNCFManager,
+            IDocumentoCorreccionNCFManager documentoCorreccionNCFManager)
         {
             _correccionDocumentosManager = correccionDocumentosManager;
             _configuracionTipoNCFManager = configuracionTipoNCFManager;
@@ -52,6 +50,7 @@ namespace ECF.Core.applications.Core.Implementaciones
             _solitudSoporteDocumentoManager = solitudSoporteDocumentoManager;
             _mapper = mapper;
             _documentoOriginalNCFManager = documentoOriginalNCFManager;
+            _documentoCorreccionNCFManager = documentoCorreccionNCFManager;
         }
 
         /// <summary>
@@ -65,6 +64,8 @@ namespace ECF.Core.applications.Core.Implementaciones
             var consultaConfiguracion = ObtenerConfiguracionAjuste(facturaAjusteDto);
             var IdSolicitud = CrearSoporteCorreccion(facturaAjusteDto.SolitudSoporteDocumento);
             GenerarDocumentoCancelacion(facturaAjusteDto.DocumentoOriginal, consultaConfiguracion, IdSolicitud);
+            GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud);
+            _configuracionTipoNCFManager.Commit();
             return respuesta;
         }
 
@@ -108,7 +109,7 @@ namespace ECF.Core.applications.Core.Implementaciones
         /// </summary>
         /// <param name="documentoOriginal"></param>
         /// <param name="configuracionAjuste"></param>
-        private List<DocumentoOriginalNCF> GenerarDocumentoCancelacion(List<DocumentoOriginalDto> documentoOriginal, (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud)
+        private void GenerarDocumentoCancelacion(List<DocumentoOriginalDto> documentoOriginal, (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud)
         {
             var documentoscancelacion = new List<DocumentoOriginalNCF>();
             var informacionAjuste = configuracionAjuste.Item1.FirstOrDefault(t => t.TipoOrigen.Trim() == documentoOriginal[0].NcfType.Trim());
@@ -123,11 +124,36 @@ namespace ECF.Core.applications.Core.Implementaciones
                 entidadDocumentoCorreccionNCF.TipoSapCancelacion = informacionAjuste?.SAPCancelacion.Trim();
                 documentoscancelacion.Add(entidadDocumentoCorreccionNCF);
             }
-            _documentoOriginalNCFManager.InsertRange(documentoscancelacion);
-            ConfiguracionTipoNCF.NInicialAhora +=1;
+            _documentoOriginalNCFManager.BulkInsertAll(documentoscancelacion.ToArray());
+            ConfiguracionTipoNCF.NInicialAhora = ActualziarInicialAhora(ConfiguracionTipoNCF.NInicialAhora);
             _configuracionTipoNCFManager.Update(ConfiguracionTipoNCF);
-            _configuracionTipoNCFManager.Commit();
-            return documentoscancelacion;
+        }
+
+        /// <summary>
+        /// Realiza el registro de los documentos ajustados para enviar a sap
+        /// </summary>
+        /// <param name="documentoAjuste"></param>
+        /// <param name="configuracionAjuste"></param>
+        /// <param name="IdSolicitud"></param>
+        private void GenerarDocumentoAjuste(List<DocumentoCorrecionDto> documentoAjuste, (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud)
+        {
+            var documentoDocumentoCorreccion = new List<DocumentoCorreccionNCF>();
+            var informacionAjuste = configuracionAjuste.Item1.FirstOrDefault(t => t.TipoOrigen.Trim() == documentoAjuste[0].NcfType.Trim());
+            var ConfiguracionTipoNCF = configuracionAjuste.Item2.FirstOrDefault(t => t.CIDTypeDocument.Trim() == informacionAjuste?.TipoCorreccion.Trim());
+            var NCFAjuste = GenerarNuevoECF(ConfiguracionTipoNCF);
+            foreach (var item in documentoAjuste)
+            {
+                var entidadDocumentoNCF = _mapper.Map<DocumentoCorreccionNCF>(item);
+                entidadDocumentoNCF.IdSupport = IdSolicitud;
+                entidadDocumentoNCF.TipoCorreccion = informacionAjuste?.TipoCorreccion.Trim();
+                entidadDocumentoNCF.NCFCorreccion = NCFAjuste;
+                entidadDocumentoNCF.TipoSapCorrecion = informacionAjuste?.SAPCorreccion.Trim();
+                documentoDocumentoCorreccion.Add(entidadDocumentoNCF);
+            }
+
+            _documentoCorreccionNCFManager.BulkInsertAll(documentoDocumentoCorreccion.ToArray());
+            ConfiguracionTipoNCF.NInicialAhora = ActualziarInicialAhora(ConfiguracionTipoNCF.NInicialAhora);
+            _configuracionTipoNCFManager.Update(ConfiguracionTipoNCF);
         }
 
         /// <summary>
@@ -144,6 +170,16 @@ namespace ECF.Core.applications.Core.Implementaciones
             }
 
             return nuevoECF;
+        }
+
+        /// <summary>
+        /// Metodo para actualiza el contador para InicialAhora de la tabla ConfiguracionTipoNCF
+        /// </summary>
+        /// <param name="NInicialAhora"></param>
+        /// <returns></returns>
+        private static int ActualziarInicialAhora(int NInicialAhora)
+        {
+            return NInicialAhora += 1;
         }
     }
 }

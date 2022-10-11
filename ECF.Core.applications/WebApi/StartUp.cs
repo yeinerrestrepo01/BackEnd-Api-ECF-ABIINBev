@@ -24,6 +24,7 @@ namespace ECF.Core.applications.WebApi
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             #endregion REPOSITORY
+
             #region Managers
 
             services.AddScoped<IVitsaConsultaFacturasManager, VitsaConsultaFacturasManager>();
@@ -32,6 +33,7 @@ namespace ECF.Core.applications.WebApi
             services.AddScoped<ICorreccionDocumentosManager, CorreccionDocumentosManager>();
             services.AddScoped<IConfiguracionTipoNCFManager, ConfiguracionTipoNCFManager>();
             services.AddScoped<IDocumentoOriginalNCFManager, DocumentoOriginalNCFManager>();
+            services.AddScoped<IDocumentoCorreccionNCFManager, DocumentoCorreccionNCFManager>();
             #endregion
         }
     }

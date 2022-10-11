@@ -37,6 +37,7 @@ namespace ECF.Core.Repository.Core
             builder.ApplyConfiguration(new SolitudSoporteDocumentoConfiguration());
             builder.ApplyConfiguration(new DocumentoOriginalNCFConfiguration());
             builder.ApplyConfiguration(new ConfiguracionTipoNCFConfiguration());
+            builder.ApplyConfiguration(new DocumentoCorreccionNCFConfiguration());
             
 
         }
