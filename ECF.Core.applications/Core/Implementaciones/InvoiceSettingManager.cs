@@ -76,7 +76,7 @@ namespace ECF.Core.applications.Core.Implementaciones
         /// <returns>Informacion de factura</returns>
         public List<VitsaConsultaFacturas> ObtenerInformacionFactura(string cIDInvoice, string IdCustumer)
         {
-            return _vitsaConsultaFacturasManager.ObtenerInformacionFactura(cIDInvoice, IdCustumer);
+            return _vitsaConsultaFacturasManager.ObtenerInformacionFactura(cIDInvoice, IdCustumer.PadLeft(10,'0'));
         }
 
         /// <summary>
