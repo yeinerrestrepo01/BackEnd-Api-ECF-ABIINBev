@@ -2,6 +2,7 @@
 using ECF.Core.applications.Core.Interfaces;
 using ECF.Core.Entities.Dto;
 using ECF.Core.Entities.Entity;
+using ServiceCoreccionSap;
 
 namespace ECF.Core.applications.Core.Implementaciones
 {
@@ -100,6 +101,7 @@ namespace ECF.Core.applications.Core.Implementaciones
         {
             var consultaTipoSecuencia = _correccionDocumentosManager.ObtenerTipoDocumentoEmpresa(facturaAjusteDto.DocumentoOriginal[0].IdCompany);
             var consultaConfiguracionNCF = _configuracionTipoNCFManager.ObtenerConfiguracionTipoNCFEmpresa(facturaAjusteDto.DocumentoOriginal[0].IdCompany);
+            
             return (consultaTipoSecuencia, consultaConfiguracionNCF);
         }
 

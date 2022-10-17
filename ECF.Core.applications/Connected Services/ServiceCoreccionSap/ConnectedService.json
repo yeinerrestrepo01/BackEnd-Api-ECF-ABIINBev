@@ -1,0 +1,16 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "https://cnddosapq.modelo.gmodelo.com.mx:8004/sap/bc/srt/wsdl/bndg_ECE8029508D428F1812E00505685212D/wsdl11/allinone/ws_policy/document"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, ServiceCoreccionSap"
+    ],
+    "targetFramework": "net6.0",
+    "typeReuseMode": "All"
+  }
+}
