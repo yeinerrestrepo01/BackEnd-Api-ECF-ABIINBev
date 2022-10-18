@@ -124,7 +124,6 @@ namespace ECF.Core.applications.Core.Implementaciones
                 entidadDocumentoCorreccionNCF.TipoCenlacion = informacionAjuste?.TipoCancelacion.Trim();
                 entidadDocumentoCorreccionNCF.NCFCancelacion = NCFCancelacion;
                 entidadDocumentoCorreccionNCF.TipoSapCancelacion = informacionAjuste?.SAPCancelacion.Trim();
-                entidadDocumentoCorreccionNCF.NetAmount = item.NetAmount - item.InterestValue;
                 documentoscancelacion.Add(entidadDocumentoCorreccionNCF);
             }
             _documentoOriginalNCFManager.BulkInsertAll(documentoscancelacion.ToArray());
@@ -151,7 +150,6 @@ namespace ECF.Core.applications.Core.Implementaciones
                 entidadDocumentoNCF.TipoCorreccion = informacionAjuste?.TipoCorreccion.Trim();
                 entidadDocumentoNCF.NCFCorreccion = NCFAjuste;
                 entidadDocumentoNCF.TipoSapCorrecion = informacionAjuste?.SAPCorreccion.Trim();
-                entidadDocumentoNCF.NetAmount = item.NetAmount - item.InterestValue;
                 documentoDocumentoCorreccion.Add(entidadDocumentoNCF);
             }
 
