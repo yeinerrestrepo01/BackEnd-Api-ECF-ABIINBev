@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ECF.Core.Commond\ECF.Core.Commond.csproj" />
     <ProjectReference Include="..\ECF.Core.Entities\ECF.Core.Entities.csproj" />
     <ProjectReference Include="..\ECF.Core.Repository\ECF.Core.Repository.csproj" />
   </ItemGroup>
