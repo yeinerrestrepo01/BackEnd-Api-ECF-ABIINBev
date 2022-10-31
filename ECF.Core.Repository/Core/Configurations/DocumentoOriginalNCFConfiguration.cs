@@ -35,6 +35,8 @@ namespace ECF.Core.Repository.Core.Configurations
             builder.Property(p => p.TipoCenlacion).HasColumnName("TipoCenlacion");
             builder.Property(p => p.TipoSapCancelacion).HasColumnName("TipoSapCancelacion");
             builder.Property(p => p.NCFCancelacion).HasColumnName("NCFCancelacion");
+            builder.Property(p => p.EnviadoSap).HasColumnName("EnviadoSap");
+            builder.Property(p => p.RespuestaSap).HasColumnName("RespuestaSap");
 
             #region NavigationProperties
             builder.HasOne(p => p.SolitudSoporteDocumento).WithMany().HasForeignKey(x=> x.IdSupport);

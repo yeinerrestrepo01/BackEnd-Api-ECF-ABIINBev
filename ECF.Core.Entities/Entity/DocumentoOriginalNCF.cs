@@ -31,6 +31,8 @@ namespace ECF.Core.Entities.Entity
         public string? TipoCenlacion { get; set; }
         public string? TipoSapCancelacion { get; set; }
         public string? NCFCancelacion { get; set; }
+        public bool EnviadoSap { get; set; }
+        public string? RespuestaSap { get; set; }
 
         public virtual SolitudSoporteDocumento? SolitudSoporteDocumento { get; set; }
     }
