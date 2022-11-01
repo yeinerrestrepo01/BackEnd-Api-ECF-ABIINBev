@@ -6,6 +6,8 @@ using ECF.Core.Entities.Entity;
 using ServiceReference1;
 using System.ServiceModel.Security;
 using System.ServiceModel;
+using ECF.Core.applications.Base;
+using System.ServiceModel.Channels;
 
 namespace ECF.Core.applications.Core.Implementaciones
 {
@@ -72,54 +74,10 @@ namespace ECF.Core.applications.Core.Implementaciones
             var documentosCorrecionGen = GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud);
             GenerarInteresFinancieroAjuste(facturaAjusteDto, documentosCorrecionGen);
             _configuracionTipoNCFManager.Commit();
-
-            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
-            binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
-
-
-            ChannelFactory<zws_posteo_correcciones> channelFactory = new ChannelFactory<zws_posteo_correcciones>(binding, new EndpointAddress("https://cnddosapq.modelo.gmodelo.com.mx:8004/sap/bc/srt/rfc/sap/zws_posteo_correcciones/101/zws_posteo_correcciones/zws_posteo_correcciones"));
-
-            channelFactory.Credentials.ServiceCertificate.SslCertificateAuthentication = new X509ServiceCertificateAuthentication()
-            {
-                CertificateValidationMode = X509CertificateValidationMode.None,
-                RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck
-            };
-            channelFactory.Credentials.UserName.UserName = "WEBBACKOFF2";
-            channelFactory.Credentials.UserName.Password = "Mitologia.32@&5.0";
-
-            zws_posteo_correcciones zws_Posteo_Correcciones = channelFactory.CreateChannel();
-
-            var ZmfPostCorreccion = new ZMF_POSTEO_CORRECCIONES
-            {
-                T_LOG_DOC_CREADOS = Array.Empty<ZST_COR_CREADAS>(),
-                T_LOG_ERRORES = Array.Empty<ZST_LOG_ERRORES>(),
-                ZTB_POSTEO = new ZST_DOC_CORRECCIONES[NcfCancelacion.Count()]
-            };
-
-            for (int i = 0; i < NcfCancelacion.Count; i++)
-            {
-                var camposEnvioPost = new ZST_DOC_CORRECCIONES();
-                camposEnvioPost.SOCIEDAD = NcfCancelacion[i].IdCompany;
-                camposEnvioPost.COD_CLIENTE = NcfCancelacion[i].IdCustumer;
-                camposEnvioPost.TIPO_PEDIDO = NcfCancelacion[i].TipoSapCancelacion;
-                camposEnvioPost.FECH_DOCUMENTO = DateTime.Now.Date.ToString("yyyy-MM-dd");
-                camposEnvioPost.NCF_NUEVO = NcfCancelacion[i].NCFCancelacion;
-                camposEnvioPost.NCF_ORIGEN = NcfCancelacion[i].NCF;
-                camposEnvioPost.MATERIAL = NcfCancelacion[i].IdProduct;
-                camposEnvioPost.UNI_MEDIDA = NcfCancelacion[i].IdUnitMeasureType;
-                camposEnvioPost.CANTIDAD = NcfCancelacion[i].Amount.ToString();
-                camposEnvioPost.AMOU_GROSS = decimal.Round(NcfCancelacion[i].BrutoTotal, 2);
-                camposEnvioPost.DISC_VOL = NcfCancelacion[i].DescuentoAmount.ToString();
-                camposEnvioPost.TAX_ITBIS = decimal.Round(NcfCancelacion[i].TaxAmount, 2);
-                camposEnvioPost.TAX_ISC = decimal.Round(NcfCancelacion[i].Isc, 2);
-                camposEnvioPost.TAX_ISCE = decimal.Round(NcfCancelacion[i].Isce, 2);
-                camposEnvioPost.NETO = decimal.Round(NcfCancelacion[i].NetAmount, 2);
-                ZmfPostCorreccion.ZTB_POSTEO[i] = camposEnvioPost;
-            }
-
-            var postSap = new ZMF_POSTEO_CORRECCIONESRequest(ZmfPostCorreccion);
-            var ra = zws_Posteo_Correcciones.ZMF_POSTEO_CORRECCIONES(postSap);
-            channelFactory.Close();
+            var enviarSap = new IntegracionSap();
+            enviarSap.EnviarAnulacionSap(NcfCancelacion);
+            enviarSap.EnviarAjusteSap(documentosCorrecionGen);
+            enviarSap._channelFactory.Close();
             return respuesta;
         }
 
