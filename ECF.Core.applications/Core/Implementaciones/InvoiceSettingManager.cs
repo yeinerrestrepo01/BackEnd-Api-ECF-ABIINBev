@@ -86,9 +86,9 @@ namespace ECF.Core.applications.Core.Implementaciones
             };
             channelFactory.Credentials.UserName.UserName = "WEBBACKOFF2";
             channelFactory.Credentials.UserName.Password = "Mitologia.32@&5.0";
-           
+
             zws_posteo_correcciones zws_Posteo_Correcciones = channelFactory.CreateChannel();
-           
+
             var ZmfPostCorreccion = new ZMF_POSTEO_CORRECCIONES
             {
                 T_LOG_DOC_CREADOS = Array.Empty<ZST_COR_CREADAS>(),
@@ -108,15 +108,15 @@ namespace ECF.Core.applications.Core.Implementaciones
                 camposEnvioPost.MATERIAL = NcfCancelacion[i].IdProduct;
                 camposEnvioPost.UNI_MEDIDA = NcfCancelacion[i].IdUnitMeasureType;
                 camposEnvioPost.CANTIDAD = NcfCancelacion[i].Amount.ToString();
-                camposEnvioPost.AMOU_GROSS = NcfCancelacion[i].BrutoTotal;
+                camposEnvioPost.AMOU_GROSS = decimal.Round(NcfCancelacion[i].BrutoTotal, 2);
                 camposEnvioPost.DISC_VOL = NcfCancelacion[i].DescuentoAmount.ToString();
-                camposEnvioPost.TAX_ITBIS = NcfCancelacion[i].TaxAmount;
-                camposEnvioPost.TAX_ISC = NcfCancelacion[i].Isc;
-                camposEnvioPost.TAX_ISCE = NcfCancelacion[i].Isce;
+                camposEnvioPost.TAX_ITBIS = decimal.Round(NcfCancelacion[i].TaxAmount, 2);
+                camposEnvioPost.TAX_ISC = decimal.Round(NcfCancelacion[i].Isc, 2);
+                camposEnvioPost.TAX_ISCE = decimal.Round(NcfCancelacion[i].Isce, 2);
                 camposEnvioPost.NETO = decimal.Round(NcfCancelacion[i].NetAmount, 2);
                 ZmfPostCorreccion.ZTB_POSTEO[i] = camposEnvioPost;
             }
-            
+
             var postSap = new ZMF_POSTEO_CORRECCIONESRequest(ZmfPostCorreccion);
             var ra = zws_Posteo_Correcciones.ZMF_POSTEO_CORRECCIONES(postSap);
             channelFactory.Close();
