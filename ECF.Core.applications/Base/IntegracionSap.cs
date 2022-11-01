@@ -1,4 +1,6 @@
 ﻿using ECF.Core.Entities.Entity;
+using NetTopologySuite.Algorithm;
+using NetTopologySuite.Utilities;
 using Newtonsoft.Json;
 using ServiceReference1;
 using System.ComponentModel.DataAnnotations;
@@ -9,15 +11,22 @@ using System.Xml;
 
 namespace ECF.Core.applications.Base
 {
+
+    /// <summary>
+    /// Clase para manejar la comunicacion con sap
+    /// </summary>
     public class IntegracionSap
     {
        public ChannelFactory<zws_posteo_correcciones> _channelFactory;
         zws_posteo_correcciones _zws_Posteo_Correcciones;
+
+        /// <summary>
+        /// Inicializador de clase <class>IntegracionSap</class>
+        /// </summary>
         public IntegracionSap()
         {
             var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
             binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
-
 
             _channelFactory = new ChannelFactory<zws_posteo_correcciones>(binding, new EndpointAddress("https://cnddosapq.modelo.gmodelo.com.mx:8004/sap/bc/srt/rfc/sap/zws_posteo_correcciones/101/zws_posteo_correcciones/zws_posteo_correcciones"));
 
@@ -48,28 +57,27 @@ namespace ECF.Core.applications.Base
 
             for (int i = 0; i < documentoOriginalNCFs.Count; i++)
             {
-                var camposEnvioPost = new ZST_DOC_CORRECCIONES();
-                camposEnvioPost.SOCIEDAD = documentoOriginalNCFs[i].IdCompany;
-                camposEnvioPost.COD_CLIENTE = documentoOriginalNCFs[i].IdCustumer;
-                camposEnvioPost.TIPO_PEDIDO = documentoOriginalNCFs[i].TipoSapCancelacion;
-                camposEnvioPost.FECH_DOCUMENTO = DateTime.Now.Date.ToString("yyyy-MM-dd");
-                camposEnvioPost.NCF_NUEVO = documentoOriginalNCFs[i].NCFCancelacion;
-                camposEnvioPost.NCF_ORIGEN = documentoOriginalNCFs[i].NCF;
-                camposEnvioPost.MATERIAL = documentoOriginalNCFs[i].IdProduct;
-                camposEnvioPost.UNI_MEDIDA = documentoOriginalNCFs[i].IdUnitMeasureType;
-                camposEnvioPost.CANTIDAD = documentoOriginalNCFs[i].Amount.ToString();
-                camposEnvioPost.AMOU_GROSS = decimal.Round(documentoOriginalNCFs[i].BrutoTotal, 2);
-                camposEnvioPost.DISC_VOL = documentoOriginalNCFs[i].DescuentoAmount.ToString();
-                camposEnvioPost.TAX_ITBIS = decimal.Round(documentoOriginalNCFs[i].TaxAmount, 2);
-                camposEnvioPost.TAX_ISC = decimal.Round(documentoOriginalNCFs[i].Isc, 2);
-                camposEnvioPost.TAX_ISCE = decimal.Round(documentoOriginalNCFs[i].Isce, 2);
-                camposEnvioPost.NETO = decimal.Round(documentoOriginalNCFs[i].NetAmount, 2);
-                ZmfPostCorreccion.ZTB_POSTEO[i] = camposEnvioPost;
+                var camposAnulacionPost = new ZST_DOC_CORRECCIONES();
+                camposAnulacionPost.SOCIEDAD = documentoOriginalNCFs[i].IdCompany;
+                camposAnulacionPost.COD_CLIENTE = documentoOriginalNCFs[i].IdCustumer;
+                camposAnulacionPost.TIPO_PEDIDO = documentoOriginalNCFs[i].TipoSapCancelacion;
+                camposAnulacionPost.FECH_DOCUMENTO = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                camposAnulacionPost.NCF_NUEVO = documentoOriginalNCFs[i].NCFCancelacion;
+                camposAnulacionPost.NCF_ORIGEN = documentoOriginalNCFs[i].NCF;
+                camposAnulacionPost.MATERIAL = documentoOriginalNCFs[i].IdProduct;
+                camposAnulacionPost.UNI_MEDIDA = documentoOriginalNCFs[i].IdUnitMeasureType;
+                camposAnulacionPost.CANTIDAD = documentoOriginalNCFs[i].Amount.ToString();
+                camposAnulacionPost.AMOU_GROSS = decimal.Round(documentoOriginalNCFs[i].BrutoTotal, 2);
+                camposAnulacionPost.DISC_VOL = documentoOriginalNCFs[i].DescuentoAmount.ToString();
+                camposAnulacionPost.TAX_ITBIS = decimal.Round(documentoOriginalNCFs[i].TaxAmount, 2);
+                camposAnulacionPost.TAX_ISC = decimal.Round(documentoOriginalNCFs[i].Isc, 2);
+                camposAnulacionPost.TAX_ISCE = decimal.Round(documentoOriginalNCFs[i].Isce, 2);
+                camposAnulacionPost.NETO = decimal.Round(documentoOriginalNCFs[i].NetAmount, 2);
+                ZmfPostCorreccion.ZTB_POSTEO[i] = camposAnulacionPost;
             }
             try
             {
-                var postSap = new ZMF_POSTEO_CORRECCIONESRequest(ZmfPostCorreccion);
-                respuesta = _zws_Posteo_Correcciones.ZMF_POSTEO_CORRECCIONES(postSap);
+                respuesta = EnviarSap(ZmfPostCorreccion);
                 return (true, respuesta);
             }
             catch (Exception)
@@ -86,13 +94,13 @@ namespace ECF.Core.applications.Base
         /// <returns></returns>
         public (bool, ZMF_POSTEO_CORRECCIONESResponse1) EnviarAjusteSap(List<DocumentoCorreccionNCF> documentoCorreccionNCFs)
         {
-            var ZmfPostCorreccion = new ZMF_POSTEO_CORRECCIONES
+            var ZmfPostAjuste = new ZMF_POSTEO_CORRECCIONES
             {
                 T_LOG_DOC_CREADOS = Array.Empty<ZST_COR_CREADAS>(),
                 T_LOG_ERRORES = Array.Empty<ZST_LOG_ERRORES>(),
                 ZTB_POSTEO = new ZST_DOC_CORRECCIONES[documentoCorreccionNCFs.Count()]
             };
-            var respuesta = new ZMF_POSTEO_CORRECCIONESResponse1();
+            var respuestaAjuste = new ZMF_POSTEO_CORRECCIONESResponse1();
 
             for (int i = 0; i < documentoCorreccionNCFs.Count; i++)
             {
@@ -112,19 +120,29 @@ namespace ECF.Core.applications.Base
                 camposEnvioPost.TAX_ISC = decimal.Round(documentoCorreccionNCFs[i].Isc, 2);
                 camposEnvioPost.TAX_ISCE = decimal.Round(documentoCorreccionNCFs[i].Isce, 2);
                 camposEnvioPost.NETO = decimal.Round(documentoCorreccionNCFs[i].NetAmount, 2);
-                ZmfPostCorreccion.ZTB_POSTEO[i] = camposEnvioPost;
+                ZmfPostAjuste.ZTB_POSTEO[i] = camposEnvioPost;
             }
             try
             {
-                var postSap = new ZMF_POSTEO_CORRECCIONESRequest(ZmfPostCorreccion);
-                respuesta = _zws_Posteo_Correcciones.ZMF_POSTEO_CORRECCIONES(postSap);
-                return (true, respuesta);
+                respuestaAjuste = EnviarSap(ZmfPostAjuste);
+                return (true, respuestaAjuste);
             }
             catch (Exception)
             {
                 _channelFactory.Close();
-                return (false, respuesta);
+                return (false, respuestaAjuste);
             }
+        }
+
+        /// <summary>
+        /// Metodo paa envio de peticion a SAP
+        /// </summary>
+        /// <param name="zMF_POSTEO_CORRECCIONES"></param>
+        /// <returns></returns>
+        private ZMF_POSTEO_CORRECCIONESResponse1 EnviarSap(ZMF_POSTEO_CORRECCIONES zMF_POSTEO_CORRECCIONES) 
+        {
+            var postSap = new ZMF_POSTEO_CORRECCIONESRequest(zMF_POSTEO_CORRECCIONES);
+            return _zws_Posteo_Correcciones.ZMF_POSTEO_CORRECCIONES(postSap);
         }
     }
 }
