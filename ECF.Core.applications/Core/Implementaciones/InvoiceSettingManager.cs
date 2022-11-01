@@ -192,7 +192,7 @@ namespace ECF.Core.applications.Core.Implementaciones
                         entidadDocumentoCorreccionNCF.NCFCancelacion = documentoOrigenNcf?.NCFCancelacion;
                         entidadDocumentoCorreccionNCF.TipoSapCancelacion = documentoOrigenNcf?.TipoSapCancelacion?.Trim();
                         entidadDocumentoCorreccionNCF.NetAmount = InteresFinanciero.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
-                        entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinanciero.Sum(t => t.BrutoTotal) + entidadCoreccionFinanciero.BrutoTotal;
+                        entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinanciero.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
                         InteresFinanciero.Add(entidadDocumentoCorreccionNCF);
                         
                     }
@@ -228,7 +228,7 @@ namespace ECF.Core.applications.Core.Implementaciones
                         entidadDocumentoCorreccionNCF.NCFCorreccion = documentoCorreccionNCF?.NCFCorreccion;
                             entidadDocumentoCorreccionNCF.TipoSapCorrecion = documentoCorreccionNCF?.TipoSapCorrecion?.Trim();
                             entidadDocumentoCorreccionNCF.NetAmount = InteresFinancieroAjuste.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
-                            entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinancieroAjuste.Sum(t => t.BrutoTotal) + entidadCoreccionFinanciero.BrutoTotal;
+                            entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinancieroAjuste.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
                         InteresFinancieroAjuste.Add(entidadDocumentoCorreccionNCF);
                     }
                 }
@@ -248,7 +248,7 @@ namespace ECF.Core.applications.Core.Implementaciones
             var docOriginallDto = new DocumentoOriginalNCF();
             docOriginallDto.FreeGoods = 0;
             docOriginallDto.DescuentoAmount = 0;
-            docOriginallDto.BrutoTotal = documentocorreccion.InterestValue;
+            docOriginallDto.BrutoTotal = 0;
             docOriginallDto.DescuentoAmount = 0;
             docOriginallDto.TaxAmount = 0;
             docOriginallDto.Isc = 0;
@@ -288,7 +288,7 @@ namespace ECF.Core.applications.Core.Implementaciones
             var documentoOriginalDto = new DocumentoCorreccionNCF();
             documentoOriginalDto.FreeGoods = 0;
             documentoOriginalDto.DescuentoAmount = 0;
-            documentoOriginalDto.BrutoTotal = documentocorreccion.InterestValue;
+            documentoOriginalDto.BrutoTotal = 0;
             documentoOriginalDto.DescuentoAmount = 0;
             documentoOriginalDto.TaxAmount = 0;
             documentoOriginalDto.Isc = 0;
