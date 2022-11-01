@@ -7,18 +7,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ServiceCoreccionSap
+namespace ServiceReference1
 {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="urn:sap-com:document:sap:rfc:functions", ConfigurationName="ServiceCoreccionSap.zws_posteo_correcciones")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace="urn:sap-com:document:sap:rfc:functions", ConfigurationName="ServiceReference1.zws_posteo_correcciones")]
     public interface zws_posteo_correcciones
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        System.Threading.Tasks.Task<ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESResponse1> ZMF_POSTEO_CORRECCIONESAsync(ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESRequest request);
+        ServiceReference1.ZMF_POSTEO_CORRECCIONESResponse1 ZMF_POSTEO_CORRECCIONES(ServiceReference1.ZMF_POSTEO_CORRECCIONESRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="", ReplyAction="*")]
+        System.Threading.Tasks.Task<ServiceReference1.ZMF_POSTEO_CORRECCIONESResponse1> ZMF_POSTEO_CORRECCIONESAsync(ServiceReference1.ZMF_POSTEO_CORRECCIONESRequest request);
     }
     
     /// <remarks/>
@@ -533,19 +536,18 @@ namespace ServiceCoreccionSap
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
     public partial class ZMF_POSTEO_CORRECCIONESRequest
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sap-com:document:sap:rfc:functions", Order=0)]
-        public ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONES ZMF_POSTEO_CORRECCIONES;
+        public ServiceReference1.ZMF_POSTEO_CORRECCIONES ZMF_POSTEO_CORRECCIONES;
         
         public ZMF_POSTEO_CORRECCIONESRequest()
         {
         }
         
-        public ZMF_POSTEO_CORRECCIONESRequest(ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONES ZMF_POSTEO_CORRECCIONES)
+        public ZMF_POSTEO_CORRECCIONESRequest(ServiceReference1.ZMF_POSTEO_CORRECCIONES ZMF_POSTEO_CORRECCIONES)
         {
             this.ZMF_POSTEO_CORRECCIONES = ZMF_POSTEO_CORRECCIONES;
         }
@@ -553,32 +555,31 @@ namespace ServiceCoreccionSap
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
     public partial class ZMF_POSTEO_CORRECCIONESResponse1
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:sap-com:document:sap:rfc:functions", Order=0)]
-        public ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESResponse ZMF_POSTEO_CORRECCIONESResponse;
+        public ServiceReference1.ZMF_POSTEO_CORRECCIONESResponse ZMF_POSTEO_CORRECCIONESResponse;
         
         public ZMF_POSTEO_CORRECCIONESResponse1()
         {
         }
         
-        public ZMF_POSTEO_CORRECCIONESResponse1(ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESResponse ZMF_POSTEO_CORRECCIONESResponse)
+        public ZMF_POSTEO_CORRECCIONESResponse1(ServiceReference1.ZMF_POSTEO_CORRECCIONESResponse ZMF_POSTEO_CORRECCIONESResponse)
         {
             this.ZMF_POSTEO_CORRECCIONESResponse = ZMF_POSTEO_CORRECCIONESResponse;
         }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    public interface zws_posteo_correccionesChannel : ServiceCoreccionSap.zws_posteo_correcciones, System.ServiceModel.IClientChannel
+    public interface zws_posteo_correccionesChannel : ServiceReference1.zws_posteo_correcciones, System.ServiceModel.IClientChannel
     {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    public partial class zws_posteo_correccionesClient : System.ServiceModel.ClientBase<ServiceCoreccionSap.zws_posteo_correcciones>, ServiceCoreccionSap.zws_posteo_correcciones
+    public partial class zws_posteo_correccionesClient : System.ServiceModel.ClientBase<ServiceReference1.zws_posteo_correcciones>, ServiceReference1.zws_posteo_correcciones
     {
         
         public zws_posteo_correccionesClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
@@ -586,17 +587,14 @@ namespace ServiceCoreccionSap
         {
         }
         
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESResponse1> ServiceCoreccionSap.zws_posteo_correcciones.ZMF_POSTEO_CORRECCIONESAsync(ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESRequest request)
+        public ServiceReference1.ZMF_POSTEO_CORRECCIONESResponse1 ZMF_POSTEO_CORRECCIONES(ServiceReference1.ZMF_POSTEO_CORRECCIONESRequest request)
         {
-            return base.Channel.ZMF_POSTEO_CORRECCIONESAsync(request);
+            return base.Channel.ZMF_POSTEO_CORRECCIONES(request);
         }
         
-        public System.Threading.Tasks.Task<ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESResponse1> ZMF_POSTEO_CORRECCIONESAsync(ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONES ZMF_POSTEO_CORRECCIONES)
+        public System.Threading.Tasks.Task<ServiceReference1.ZMF_POSTEO_CORRECCIONESResponse1> ZMF_POSTEO_CORRECCIONESAsync(ServiceReference1.ZMF_POSTEO_CORRECCIONESRequest request)
         {
-            ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESRequest inValue = new ServiceCoreccionSap.ZMF_POSTEO_CORRECCIONESRequest();
-            inValue.ZMF_POSTEO_CORRECCIONES = ZMF_POSTEO_CORRECCIONES;
-            return ((ServiceCoreccionSap.zws_posteo_correcciones)(this)).ZMF_POSTEO_CORRECCIONESAsync(inValue);
+            return base.Channel.ZMF_POSTEO_CORRECCIONESAsync(request);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECF.Core.API", "ECF.Core.AP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECF.Core.Entities", "ECF.Core.Entities\ECF.Core.Entities.csproj", "{459DE962-0092-461E-A682-254D983B3E34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECF.Core.ExtrenalServices", "ECF.Core.ExtrenalServices\ECF.Core.ExtrenalServices.csproj", "{E93C5225-9DCE-4627-9EB9-0C32DF914276}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{459DE962-0092-461E-A682-254D983B3E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{459DE962-0092-461E-A682-254D983B3E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{459DE962-0092-461E-A682-254D983B3E34}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E93C5225-9DCE-4627-9EB9-0C32DF914276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E93C5225-9DCE-4627-9EB9-0C32DF914276}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E93C5225-9DCE-4627-9EB9-0C32DF914276}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E93C5225-9DCE-4627-9EB9-0C32DF914276}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

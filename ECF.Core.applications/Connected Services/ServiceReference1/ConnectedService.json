@@ -7,10 +7,12 @@
       "System.Array",
       "System.Collections.Generic.Dictionary`2"
     ],
+    "messageContract": true,
     "namespaceMappings": [
-      "*, ServiceCoreccionSap"
+      "*, ServiceReference1"
     ],
+    "sync": true,
     "targetFramework": "net6.0",
-    "typeReuseMode": "All"
+    "typeReuseMode": "None"
   }
 }

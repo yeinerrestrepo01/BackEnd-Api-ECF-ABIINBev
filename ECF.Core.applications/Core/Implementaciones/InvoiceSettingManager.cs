@@ -3,9 +3,9 @@ using ECF.Core.applications.Core.Interfaces;
 using ECF.Core.Commond;
 using ECF.Core.Entities.Dto;
 using ECF.Core.Entities.Entity;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using ServiceCoreccionSap;
-using System.Runtime.CompilerServices;
+using ServiceReference1;
+using System.ServiceModel.Security;
+using System.ServiceModel;
 
 namespace ECF.Core.applications.Core.Implementaciones
 {
@@ -69,9 +69,57 @@ namespace ECF.Core.applications.Core.Implementaciones
             var IdSolicitud = CrearSoporteCorreccion(facturaAjusteDto.SolitudSoporteDocumento);
             var NcfCancelacion = GenerarDocumentoCancelacion(facturaAjusteDto.DocumentoOriginal, consultaConfiguracion, IdSolicitud);
             GenerarInteresFinancieroCancelacion(facturaAjusteDto, NcfCancelacion);
-            var documentosCorrecionGen =  GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud);
+            var documentosCorrecionGen = GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud);
             GenerarInteresFinancieroAjuste(facturaAjusteDto, documentosCorrecionGen);
             _configuracionTipoNCFManager.Commit();
+
+            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
+            binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+
+
+            ChannelFactory<zws_posteo_correcciones> channelFactory = new ChannelFactory<zws_posteo_correcciones>(binding, new EndpointAddress("https://cnddosapq.modelo.gmodelo.com.mx:8004/sap/bc/srt/rfc/sap/zws_posteo_correcciones/101/zws_posteo_correcciones/zws_posteo_correcciones"));
+
+            channelFactory.Credentials.ServiceCertificate.SslCertificateAuthentication = new X509ServiceCertificateAuthentication()
+            {
+                CertificateValidationMode = X509CertificateValidationMode.None,
+                RevocationMode = System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck
+            };
+            channelFactory.Credentials.UserName.UserName = "WEBBACKOFF2";
+            channelFactory.Credentials.UserName.Password = "Mitologia.32@&5.0";
+           
+            zws_posteo_correcciones zws_Posteo_Correcciones = channelFactory.CreateChannel();
+           
+            var ZmfPostCorreccion = new ZMF_POSTEO_CORRECCIONES
+            {
+                T_LOG_DOC_CREADOS = Array.Empty<ZST_COR_CREADAS>(),
+                T_LOG_ERRORES = Array.Empty<ZST_LOG_ERRORES>(),
+                ZTB_POSTEO = new ZST_DOC_CORRECCIONES[NcfCancelacion.Count()]
+            };
+
+            for (int i = 0; i < NcfCancelacion.Count; i++)
+            {
+                var camposEnvioPost = new ZST_DOC_CORRECCIONES();
+                camposEnvioPost.SOCIEDAD = NcfCancelacion[i].IdCompany;
+                camposEnvioPost.COD_CLIENTE = NcfCancelacion[i].IdCustumer;
+                camposEnvioPost.TIPO_PEDIDO = NcfCancelacion[i].TipoSapCancelacion;
+                camposEnvioPost.FECH_DOCUMENTO = DateTime.Now.Date.ToString("yyyy-MM-dd");
+                camposEnvioPost.NCF_NUEVO = NcfCancelacion[i].NCFCancelacion;
+                camposEnvioPost.NCF_ORIGEN = NcfCancelacion[i].NCF;
+                camposEnvioPost.MATERIAL = NcfCancelacion[i].IdProduct;
+                camposEnvioPost.UNI_MEDIDA = NcfCancelacion[i].IdUnitMeasureType;
+                camposEnvioPost.CANTIDAD = NcfCancelacion[i].Amount.ToString();
+                camposEnvioPost.AMOU_GROSS = NcfCancelacion[i].BrutoTotal;
+                camposEnvioPost.DISC_VOL = NcfCancelacion[i].DescuentoAmount.ToString();
+                camposEnvioPost.TAX_ITBIS = NcfCancelacion[i].TaxAmount;
+                camposEnvioPost.TAX_ISC = NcfCancelacion[i].Isc;
+                camposEnvioPost.TAX_ISCE = NcfCancelacion[i].Isce;
+                camposEnvioPost.NETO = decimal.Round(NcfCancelacion[i].NetAmount, 2);
+                ZmfPostCorreccion.ZTB_POSTEO[i] = camposEnvioPost;
+            }
+            
+            var postSap = new ZMF_POSTEO_CORRECCIONESRequest(ZmfPostCorreccion);
+            var ra = zws_Posteo_Correcciones.ZMF_POSTEO_CORRECCIONES(postSap);
+            channelFactory.Close();
             return respuesta;
         }
 
@@ -180,10 +228,10 @@ namespace ECF.Core.applications.Core.Implementaciones
                 var interedModificado = facturaAjusteDto.DocumentoCorrecion.FirstOrDefault(t => t.IdProduct == item.IdProduct && t.InterestValue != item.InterestValue);
 
                 var documentoOrigenNcf = documentoOriginal.FirstOrDefault(t => t.IdProduct == item.IdProduct && t.IdCustumer == item.IdCustumer && t.IdCompany == item.IdCompany);
-                
-                if (interedModificado != null && documentoOrigenNcf !=null)
+
+                if (interedModificado != null && documentoOrigenNcf != null)
                 {
-                    if (interedModificado.BrutoTotal !=0)
+                    if (interedModificado.BrutoTotal != 0)
                     {
                         var entidadCoreccionFinanciero = MapInteresFinanciero(item);
                         var entidadDocumentoCorreccionNCF = _mapper.Map<DocumentoOriginalNCF>(entidadCoreccionFinanciero);
@@ -194,13 +242,16 @@ namespace ECF.Core.applications.Core.Implementaciones
                         entidadDocumentoCorreccionNCF.NetAmount = InteresFinanciero.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
                         entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinanciero.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
                         InteresFinanciero.Add(entidadDocumentoCorreccionNCF);
-                        
+
                     }
                 }
             }
-            var last = InteresFinanciero.Last();
-            _documentoOriginalNCFManager.Insert(InteresFinanciero.Last());
-            _documentoOriginalNCFManager.Commit();
+            if (InteresFinanciero.Any())
+            {
+                _documentoOriginalNCFManager.Insert(InteresFinanciero.Last());
+                _documentoOriginalNCFManager.Commit();
+            }
+
         }
 
         /// <summary>
@@ -221,21 +272,23 @@ namespace ECF.Core.applications.Core.Implementaciones
                 {
                     if (interedModificado.BrutoTotal != 0)
                     {
-                            var entidadCoreccionFinanciero = MapInteresFinancieroAjuste(documentoCorreccionNCF);
-                            var entidadDocumentoCorreccionNCF = _mapper.Map<DocumentoCorreccionNCF>(entidadCoreccionFinanciero);
-                            entidadDocumentoCorreccionNCF.IdSupport = documentoCorreccionNCF.IdSupport;
-                            entidadDocumentoCorreccionNCF.TipoCorreccion = documentoCorreccionNCF?.TipoCorreccion?.Trim();
+                        var entidadCoreccionFinanciero = MapInteresFinancieroAjuste(documentoCorreccionNCF);
+                        var entidadDocumentoCorreccionNCF = _mapper.Map<DocumentoCorreccionNCF>(entidadCoreccionFinanciero);
+                        entidadDocumentoCorreccionNCF.IdSupport = documentoCorreccionNCF.IdSupport;
+                        entidadDocumentoCorreccionNCF.TipoCorreccion = documentoCorreccionNCF?.TipoCorreccion?.Trim();
                         entidadDocumentoCorreccionNCF.NCFCorreccion = documentoCorreccionNCF?.NCFCorreccion;
-                            entidadDocumentoCorreccionNCF.TipoSapCorrecion = documentoCorreccionNCF?.TipoSapCorrecion?.Trim();
-                            entidadDocumentoCorreccionNCF.NetAmount = InteresFinancieroAjuste.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
-                            entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinancieroAjuste.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
+                        entidadDocumentoCorreccionNCF.TipoSapCorrecion = documentoCorreccionNCF?.TipoSapCorrecion?.Trim();
+                        entidadDocumentoCorreccionNCF.NetAmount = InteresFinancieroAjuste.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
+                        entidadDocumentoCorreccionNCF.BrutoTotal = InteresFinancieroAjuste.Sum(t => t.NetAmount) + entidadCoreccionFinanciero.NetAmount;
                         InteresFinancieroAjuste.Add(entidadDocumentoCorreccionNCF);
                     }
                 }
             }
-            var last = InteresFinancieroAjuste.Last();
-            _documentoCorreccionNCFManager.Insert(InteresFinancieroAjuste.Last());
-            _documentoCorreccionNCFManager.Commit();
+            if (InteresFinancieroAjuste.Any())
+            {
+                _documentoCorreccionNCFManager.Insert(InteresFinancieroAjuste.Last());
+                _documentoCorreccionNCFManager.Commit();
+            }
         }
 
         /// <summary>
@@ -243,7 +296,7 @@ namespace ECF.Core.applications.Core.Implementaciones
         /// </summary>
         /// <param name="documentoCorrecionDto"></param>
         /// <returns></returns>
-        private DocumentoOriginalNCF MapInteresFinanciero(DocumentoOriginalDto documentocorreccion) 
+        private DocumentoOriginalNCF MapInteresFinanciero(DocumentoOriginalDto documentocorreccion)
         {
             var docOriginallDto = new DocumentoOriginalNCF();
             docOriginallDto.FreeGoods = 0;
