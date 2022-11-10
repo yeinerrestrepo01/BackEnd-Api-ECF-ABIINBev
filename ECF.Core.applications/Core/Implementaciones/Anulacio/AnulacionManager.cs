@@ -46,7 +46,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
             var respuesta = new RespuestaGenerica<bool>();
             var consultaConfiguracion = ObtenerConfiguracionAnulacion(facturaAjusteDto.DocumentoCorrecion[0].IdCompany);
             var IdSolicitud = CrearSoporteCorreccion(facturaAjusteDto.SolicitudAnulacionDto);
-            GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud);
+            GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud, facturaAjusteDto.SolicitudAnulacionDto.InterCompany);
             _configuracionTipoNCFManager.Commit();
             var enviarSap = new IntegracionSap();
             enviarSap._channelFactory.Close();
@@ -84,7 +84,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
         /// <param name="documentoAjuste"></param>
         /// <param name="configuracionAjuste"></param>
         /// <param name="IdSolicitud"></param>
-        private void GenerarDocumentoAjuste(List<DocumentoCorrecionDto> documentoAjuste, (List<AnulacionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud)
+        private void GenerarDocumentoAjuste(List<DocumentoCorrecionDto> documentoAjuste, (List<AnulacionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud, string? NcfIntercompany)
         {
             var documentoCorreccion = new List<DocumentoCorreccionNCF>();
             var informacionAjuste = configuracionAjuste.Item1.FirstOrDefault(t => t.TipoOrigen.Trim() == documentoAjuste[0].NcfType.Trim());
@@ -112,6 +112,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
                     entidadCliente.IdSupport = IdSolicitud;
                     entidadCliente.TipoCorreccion = informacionAjuste?.TipoCancelInterComp.Trim();
                     entidadCliente.NCFCorreccion = NCFAjusteIntercompa;
+                    entidadCliente.NCF = NcfIntercompany;
                     entidadCliente.TipoSapCorrecion = informacionAjuste?.SAPCancelacion.Trim();
                     entidadCliente.NetAmount = item.NetAmount - item.InterestValue;
                     var CorrecionInterCompany = EsInterCompany(entidadCliente);
