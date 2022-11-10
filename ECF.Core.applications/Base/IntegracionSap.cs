@@ -98,7 +98,7 @@ namespace ECF.Core.applications.Base
             {
                 T_LOG_DOC_CREADOS = Array.Empty<ZST_COR_CREADAS>(),
                 T_LOG_ERRORES = Array.Empty<ZST_LOG_ERRORES>(),
-                ZTB_POSTEO = new ZST_DOC_CORRECCIONES[documentoCorreccionNCFs.Count()]
+                ZTB_POSTEO = new ZST_DOC_CORRECCIONES[documentoCorreccionNCFs.Count]
             };
             var respuestaAjuste = new ZMF_POSTEO_CORRECCIONESResponse1();
 

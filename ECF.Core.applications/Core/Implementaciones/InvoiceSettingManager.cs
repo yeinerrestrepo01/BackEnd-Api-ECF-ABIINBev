@@ -1,13 +1,9 @@
 ﻿using AutoMapper;
+using ECF.Core.applications.Base;
 using ECF.Core.applications.Core.Interfaces;
 using ECF.Core.Commond;
 using ECF.Core.Entities.Dto;
 using ECF.Core.Entities.Entity;
-using ServiceReference1;
-using System.ServiceModel.Security;
-using System.ServiceModel;
-using ECF.Core.applications.Base;
-using System.ServiceModel.Channels;
 
 namespace ECF.Core.applications.Core.Implementaciones
 {
@@ -67,7 +63,7 @@ namespace ECF.Core.applications.Core.Implementaciones
         public RespuestaGenerica<bool> AjusteFactura(FacturaAjusteDto facturaAjusteDto)
         {
             var respuesta = new RespuestaGenerica<bool>();
-            var consultaConfiguracion = ObtenerConfiguracionAjuste(facturaAjusteDto);
+            var consultaConfiguracion = ObtenerConfiguracionAjuste(facturaAjusteDto.DocumentoOriginal[0].IdCompany);
             var IdSolicitud = CrearSoporteCorreccion(facturaAjusteDto.SolitudSoporteDocumento);
             var NcfCancelacion = GenerarDocumentoCancelacion(facturaAjusteDto.DocumentoOriginal, consultaConfiguracion, IdSolicitud);
             GenerarInteresFinancieroCancelacion(facturaAjusteDto, NcfCancelacion);
@@ -108,10 +104,10 @@ namespace ECF.Core.applications.Core.Implementaciones
         /// Metodo para obtenr la configuracion de ajustes de las facturas
         /// </summary>
         /// <param name="facturaAjusteDto">informacion de ajuste de factura</param>
-        private (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) ObtenerConfiguracionAjuste(FacturaAjusteDto facturaAjusteDto)
+        public (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) ObtenerConfiguracionAjuste(string IdCompany)
         {
-            var consultaTipoSecuencia = _correccionDocumentosManager.ObtenerTipoDocumentoEmpresa(facturaAjusteDto.DocumentoOriginal[0].IdCompany);
-            var consultaConfiguracionNCF = _configuracionTipoNCFManager.ObtenerConfiguracionTipoNCFEmpresa(facturaAjusteDto.DocumentoOriginal[0].IdCompany);
+            var consultaTipoSecuencia = _correccionDocumentosManager.ObtenerTipoDocumentoEmpresa(IdCompany);
+            var consultaConfiguracionNCF = _configuracionTipoNCFManager.ObtenerConfiguracionTipoNCFEmpresa(IdCompany);
 
             return (consultaTipoSecuencia, consultaConfiguracionNCF);
         }

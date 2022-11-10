@@ -30,6 +30,8 @@ namespace ECF.Core.Repository.Core.Configurations
             builder.Property(p => p.TaxAmount).HasColumnName("TaxAmount");
             builder.Property(p => p.InterestValue).HasColumnName("InterestValue");
             builder.Property(p => p.Transport).HasColumnName("Transport");
+            builder.Property(p => p.Labor).HasColumnName("Labor");
+            builder.Property(p => p.FechaPedido).HasColumnName("FechaPedido");
         }
     }
 }

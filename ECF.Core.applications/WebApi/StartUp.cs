@@ -1,7 +1,9 @@
 ﻿
 
 using ECF.Core.applications.Core.Implementaciones;
+using ECF.Core.applications.Core.Implementaciones.Anulacio;
 using ECF.Core.applications.Core.Interfaces;
+using ECF.Core.applications.Core.Interfaces.Anulacion;
 using ECF.Core.Repository.Base;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +36,7 @@ namespace ECF.Core.applications.WebApi
             services.AddScoped<IConfiguracionTipoNCFManager, ConfiguracionTipoNCFManager>();
             services.AddScoped<IDocumentoOriginalNCFManager, DocumentoOriginalNCFManager>();
             services.AddScoped<IDocumentoCorreccionNCFManager, DocumentoCorreccionNCFManager>();
+            services.AddScoped<IAnulacionManager, AnulacionManager>();
             #endregion
         }
     }

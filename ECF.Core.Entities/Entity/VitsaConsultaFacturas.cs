@@ -23,5 +23,7 @@
         public decimal Transport { get; set; }
         public decimal NetAmount { get; set; }
         public string? GroupPrice { get; set; }
+        public string? Labor { get; set; }
+        public DateTime FechaPedido { get; set; }
     }
 }
