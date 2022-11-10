@@ -36,6 +36,7 @@ namespace ECF.Core.applications.WebApi
             services.AddScoped<IConfiguracionTipoNCFManager, ConfiguracionTipoNCFManager>();
             services.AddScoped<IDocumentoOriginalNCFManager, DocumentoOriginalNCFManager>();
             services.AddScoped<IDocumentoCorreccionNCFManager, DocumentoCorreccionNCFManager>();
+            services.AddScoped<IAnulacionDocumentosManager, AnulacionDocumentosManager>();
             services.AddScoped<IAnulacionManager, AnulacionManager>();
             #endregion
         }

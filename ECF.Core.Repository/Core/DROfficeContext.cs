@@ -24,6 +24,7 @@ namespace ECF.Core.Repository.Core
         public virtual DbSet<DocumentoOriginalNCF> DocumentoOriginalNCF { get; set; }
         public virtual DbSet<DocumentoCorreccionNCF> DocumentoCorreccionNCF { get; set; }
         public virtual DbSet<ConfiguracionTipoNCF> ConfiguracionTipoNCF { get; set; }
+        public virtual DbSet<AnulacionDocumentos> AnulacionDocumentos { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -38,6 +39,7 @@ namespace ECF.Core.Repository.Core
             builder.ApplyConfiguration(new DocumentoOriginalNCFConfiguration());
             builder.ApplyConfiguration(new ConfiguracionTipoNCFConfiguration());
             builder.ApplyConfiguration(new DocumentoCorreccionNCFConfiguration());
+            builder.ApplyConfiguration(new AnulacionDocumentosConfiguration());
             
 
         }

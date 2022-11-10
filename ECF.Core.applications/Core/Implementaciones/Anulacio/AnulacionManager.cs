@@ -2,7 +2,6 @@
 using ECF.Core.applications.Base;
 using ECF.Core.applications.Core.Interfaces;
 using ECF.Core.applications.Core.Interfaces.Anulacion;
-using ECF.Core.Commond;
 using ECF.Core.Entities.Dto;
 using ECF.Core.Entities.Entity;
 
@@ -10,7 +9,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
 {
     public class AnulacionManager : IAnulacionManager
     {
-        private readonly ICorreccionDocumentosManager _correccionDocumentosManager;
+        private readonly IAnulacionDocumentosManager _anulacionDocumentosManager;
 
         private readonly IConfiguracionTipoNCFManager _configuracionTipoNCFManager;
 
@@ -32,13 +31,14 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
             IConfiguracionTipoNCFManager configuracionTipoNCFManager,
             ISolitudSoporteDocumentoManager solitudSoporteDocumentoManager,
             IMapper mapper,
-            IDocumentoCorreccionNCFManager documentoCorreccionNCFManager)
+            IDocumentoCorreccionNCFManager documentoCorreccionNCFManager,
+            IAnulacionDocumentosManager anulacionDocumentosManager)
         {
-            _correccionDocumentosManager = correccionDocumentosManager;
             _configuracionTipoNCFManager = configuracionTipoNCFManager;
             _solitudSoporteDocumentoManager = solitudSoporteDocumentoManager;
             _mapper = mapper;
             _documentoCorreccionNCFManager = documentoCorreccionNCFManager;
+            _anulacionDocumentosManager = anulacionDocumentosManager;
         }
 
         public RespuestaGenerica<bool> AnulacionFactura(AnulacionInvoideDto facturaAjusteDto)
@@ -70,10 +70,10 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
         /// Metodo para obtenr la configuracion de ajustes de las facturas
         /// </summary>
         /// <param name="facturaAjusteDto">informacion de ajuste de factura</param>
-        public (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) ObtenerConfiguracionAnulacion(string IdCompany)
+        public (List<AnulacionDocumentos>, List<ConfiguracionTipoNCF>) ObtenerConfiguracionAnulacion(string IdCompany)
         {
-            var consultaTipoSecuencia = _correccionDocumentosManager.ObtenerTipoDocumentoEmpresa(IdCompany);
-            var consultaConfiguracionNCF = _configuracionTipoNCFManager.ObtenerConfiguracionTipoNCFEmpresa(IdCompany);
+            var consultaTipoSecuencia = _anulacionDocumentosManager.GetAll().Where(t=> t.Compania == IdCompany).ToList();
+            var consultaConfiguracionNCF = _configuracionTipoNCFManager.GetAll().ToList();
 
             return (consultaTipoSecuencia, consultaConfiguracionNCF);
         }
@@ -84,39 +84,47 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
         /// <param name="documentoAjuste"></param>
         /// <param name="configuracionAjuste"></param>
         /// <param name="IdSolicitud"></param>
-        private void GenerarDocumentoAjuste(List<DocumentoCorrecionDto> documentoAjuste, (List<CorreccionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud)
+        private void GenerarDocumentoAjuste(List<DocumentoCorrecionDto> documentoAjuste, (List<AnulacionDocumentos>, List<ConfiguracionTipoNCF>) configuracionAjuste, int IdSolicitud)
         {
             var documentoCorreccion = new List<DocumentoCorreccionNCF>();
             var informacionAjuste = configuracionAjuste.Item1.FirstOrDefault(t => t.TipoOrigen.Trim() == documentoAjuste[0].NcfType.Trim());
-            var ConfiguracionTipoNCF = configuracionAjuste.Item2.FirstOrDefault(t => t.CIDTypeDocument.Trim() == informacionAjuste?.TipoCorreccion.Trim());
-            var NCFAjuste = GenerarNuevoECF(ConfiguracionTipoNCF);
+
+            var ConfiguracionNcfCliente = configuracionAjuste.Item2.FirstOrDefault(t => t.CIDTypeDocument.Trim() == informacionAjuste?.TipoCancelCliente.Trim() && t.CIdCompany == "1713");
+            var NCFAjusteCliente = GenerarNuevoECF(ConfiguracionNcfCliente);
+
+            var ConfiguracionNcfIntercompa = configuracionAjuste.Item2.FirstOrDefault(t => t.CIDTypeDocument.Trim() == informacionAjuste?.TipoCancelInterComp.Trim() && t.CIdCompany == "1707");
+            var NCFAjusteIntercompa = GenerarNuevoECF(ConfiguracionNcfIntercompa);
             foreach (var item in documentoAjuste)
             {
+                
                 var entidadDocumentoNCF = _mapper.Map<DocumentoCorreccionNCF>(item);
                 entidadDocumentoNCF.IdSupport = IdSolicitud;
-                entidadDocumentoNCF.TipoCorreccion = informacionAjuste?.TipoCorreccion.Trim();
-                entidadDocumentoNCF.NCFCorreccion = NCFAjuste;
-                entidadDocumentoNCF.TipoSapCorrecion = informacionAjuste?.SAPCorreccion.Trim();
+                entidadDocumentoNCF.TipoCorreccion = informacionAjuste?.TipoCancelCliente.Trim();
+                entidadDocumentoNCF.NCFCorreccion = NCFAjusteCliente;
+                entidadDocumentoNCF.TipoSapCorrecion = informacionAjuste?.SAPCancelacion.Trim();
                 entidadDocumentoNCF.NetAmount = item.NetAmount - item.InterestValue;
                 documentoCorreccion.Add(entidadDocumentoNCF);
 
                 if (item.IdCompany == "1713" && item.Labor.Trim().Equals("001"))
                 {
-                    var entidadCliente= _mapper.Map<DocumentoCorreccionNCF>(item);
+                   
+                    var entidadCliente = _mapper.Map<DocumentoCorreccionNCF>(item);
                     entidadCliente.IdSupport = IdSolicitud;
-                    entidadCliente.TipoCorreccion = informacionAjuste?.TipoCorreccion.Trim();
-                    entidadCliente.NCFCorreccion = NCFAjuste;
-                    entidadCliente.TipoSapCorrecion = informacionAjuste?.SAPCorreccion.Trim();
+                    entidadCliente.TipoCorreccion = informacionAjuste?.TipoCancelInterComp.Trim();
+                    entidadCliente.NCFCorreccion = NCFAjusteIntercompa;
+                    entidadCliente.TipoSapCorrecion = informacionAjuste?.SAPCancelacion.Trim();
                     entidadCliente.NetAmount = item.NetAmount - item.InterestValue;
                     var CorrecionInterCompany = EsInterCompany(entidadCliente);
                     documentoCorreccion.Add(CorrecionInterCompany);
                 }
-                
+
             }
 
             _documentoCorreccionNCFManager.BulkInsertAll(documentoCorreccion.ToArray());
-            ConfiguracionTipoNCF.NInicialAhora = ActualziarInicialAhora(ConfiguracionTipoNCF.NInicialAhora);
-            _configuracionTipoNCFManager.Update(ConfiguracionTipoNCF);
+            ConfiguracionNcfCliente.NInicialAhora = ActualziarInicialAhora(ConfiguracionNcfCliente.NInicialAhora);
+            ConfiguracionNcfIntercompa.NInicialAhora = ActualziarInicialAhora(ConfiguracionNcfIntercompa.NInicialAhora);
+            _configuracionTipoNCFManager.Update(ConfiguracionNcfCliente);
+            _configuracionTipoNCFManager.Update(ConfiguracionNcfIntercompa);
         }
 
         /// <summary>
