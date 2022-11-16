@@ -80,7 +80,7 @@ namespace ECF.Core.applications.Base
                 respuesta = EnviarSap(ZmfPostCorreccion);
                 return (true, respuesta);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _channelFactory.Close();
                 return (false, respuesta);
