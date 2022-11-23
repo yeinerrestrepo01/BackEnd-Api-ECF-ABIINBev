@@ -141,18 +141,14 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
         /// <returns></returns>
         private DocumentoCorreccionNCF EsInterCompany(DocumentoCorreccionNCF documentoCorreccion, List<ListadoPrecios> listadoPrecios)
         {
+            documentoCorreccion.IdCompany = "1707";
+            documentoCorreccion.IdCustumer = "1713";
             var nuevosPrecios = _listadoPreciosManager.GetAll().FirstOrDefault(t => t.BUKRS == documentoCorreccion.IdCompany && t.PLTYP == documentoCorreccion.GroupPrice
            && t.MATNR.Trim() == documentoCorreccion.IdProduct.Trim());
             if (nuevosPrecios != null)
-            documentoCorreccion.Isce = nuevosPrecios.ISCE;
-            documentoCorreccion.Isc = nuevosPrecios.ISCV;
-
-            documentoCorreccion.IdCompany = "1707";
-            documentoCorreccion.IdCustumer = "1713";
-
+            documentoCorreccion.Isce = nuevosPrecios.ISCE * documentoCorreccion.Amount;
+            documentoCorreccion.Isc = nuevosPrecios.ISCV * documentoCorreccion.Amount;
             documentoCorreccion.InterestValue = 0;
-            documentoCorreccion.Isc = 0;
-            documentoCorreccion.Isce = 0;
             documentoCorreccion.BrutoTotal = documentoCorreccion.NetAmount - documentoCorreccion.Isce - documentoCorreccion.Isc - documentoCorreccion.TaxAmount + documentoCorreccion.DescuentoAmount;
             return documentoCorreccion;
         }
