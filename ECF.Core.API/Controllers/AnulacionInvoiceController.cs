@@ -30,5 +30,13 @@ namespace ECF.Core.API.Controllers
             var resultadoAnluacion = _anulacionManager.AnulacionFactura(anulacionInvoideDto);
             return Ok(resultadoAnluacion);
         }
+
+
+        // POST api/<AnulacionInvoiceController>
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok("");
+        }
     }
 }

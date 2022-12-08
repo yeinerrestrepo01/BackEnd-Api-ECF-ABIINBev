@@ -23,7 +23,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
         private readonly IListadoPreciosManager _listadoPreciosManager;
 
         /// <summary>
-        /// 
+        /// Inicializador de clase AnulacionManager
         /// </summary>
         /// <param name="correccionDocumentosManager"></param>
         /// <param name="configuracionTipoNCFManager"></param>
