@@ -2,7 +2,6 @@
 using ECF.Core.applications.Base;
 using ECF.Core.applications.Core.Interfaces;
 using ECF.Core.applications.Core.Interfaces.Anulacion;
-using ECF.Core.Commond;
 using ECF.Core.Entities.Dto;
 using ECF.Core.Entities.Entity;
 
@@ -146,7 +145,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
             var nuevosPrecios = _listadoPreciosManager.GetAll().FirstOrDefault(t => t.BUKRS == documentoCorreccion.IdCompany && t.PLTYP == documentoCorreccion.GroupPrice
            && t.MATNR.Trim() == documentoCorreccion.IdProduct.Trim());
             if (nuevosPrecios != null)
-            documentoCorreccion.Isce = nuevosPrecios.ISCE * documentoCorreccion.Amount;
+                documentoCorreccion.Isce = nuevosPrecios.ISCE * documentoCorreccion.Amount;
             documentoCorreccion.Isc = nuevosPrecios.ISCV * documentoCorreccion.Amount;
             documentoCorreccion.InterestValue = 0;
             documentoCorreccion.BrutoTotal = documentoCorreccion.NetAmount - documentoCorreccion.Isce - documentoCorreccion.Isc - documentoCorreccion.TaxAmount + documentoCorreccion.DescuentoAmount;
