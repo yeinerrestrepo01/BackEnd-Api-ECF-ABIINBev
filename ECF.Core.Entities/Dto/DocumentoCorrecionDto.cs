@@ -12,7 +12,7 @@
         public int NSeq { get; set; }
         public decimal Amount { get; set; }
         public string? IdUnitMeasureType { get; set; }
-        public decimal FreeGoods { get; set; }
+        public int FreeGoods { get; set; }
         public decimal BrutoTotal { get; set; }
         public decimal DescuentoAmount { get; set; }
         public decimal TaxAmount { get; set; }

@@ -4,6 +4,8 @@ using ECF.Core.applications.Core.Interfaces;
 using ECF.Core.Commond;
 using ECF.Core.Entities.Dto;
 using ECF.Core.Entities.Entity;
+using NetTopologySuite.Geometries;
+using ServiceReference1;
 
 namespace ECF.Core.applications.Core.Implementaciones
 {
@@ -65,14 +67,21 @@ namespace ECF.Core.applications.Core.Implementaciones
             var respuesta = new RespuestaGenerica<bool>();
             var consultaConfiguracion = ObtenerConfiguracionAjuste(facturaAjusteDto.DocumentoOriginal[0].IdCompany);
             var IdSolicitud = CrearSoporteCorreccion(facturaAjusteDto.SolitudSoporteDocumento);
+
             var NcfCancelacion = GenerarDocumentoCancelacion(facturaAjusteDto.DocumentoOriginal, consultaConfiguracion, IdSolicitud);
             GenerarInteresFinancieroCancelacion(facturaAjusteDto, NcfCancelacion);
             var documentosCorrecionGen = GenerarDocumentoAjuste(facturaAjusteDto.DocumentoCorrecion, consultaConfiguracion, IdSolicitud);
+            
             GenerarInteresFinancieroAjuste(facturaAjusteDto, documentosCorrecionGen);
             _configuracionTipoNCFManager.Commit();
             var enviarSap = new IntegracionSap();
-            enviarSap.EnviarAnulacionSap(NcfCancelacion);
-            enviarSap.EnviarAjusteSap(documentosCorrecionGen);
+
+            var respuestaAnulacionSap = enviarSap.EnviarAnulacionSap(NcfCancelacion);
+            var respuestaAjusteSap = enviarSap.EnviarAjusteSap(documentosCorrecionGen);
+
+            ActulizarEstadoCancelacion(IdSolicitud, respuestaAnulacionSap.Item2);
+            ActulizarEstadoCorrreccion(IdSolicitud, respuestaAjusteSap.Item2);
+
             enviarSap._channelFactory.Close();
             return respuesta;
         }
@@ -246,16 +255,57 @@ namespace ECF.Core.applications.Core.Implementaciones
         }
 
         /// <summary>
+        /// Metodo para realizar el ajuste de los documentos enviados a Sap
+        /// </summary>
+        /// <param name="IdSolicitud">IdSolicitud id solicitud</param>
+        /// <param name="respuestSap">respuesta procesamiento sap</param>
+        private void ActulizarEstadoCorrreccion(int IdSolicitud, ZMF_POSTEO_CORRECCIONESResponse1 respuestSap)
+        {
+            var listdocumentoCorreccionNCFs = _documentoCorreccionNCFManager.GetAll().Where(t => t.IdSupport == IdSolicitud).ToList();
+            foreach (var item in listdocumentoCorreccionNCFs)
+            {
+                item.EnviadoSap = respuestSap.ZMF_POSTEO_CORRECCIONESResponse != null;
+                item.RespuestaSap = respuestSap.ZMF_POSTEO_CORRECCIONESResponse == null? "Fallo envio Sap": respuestSap.ZMF_POSTEO_CORRECCIONESResponse.ToString();
+            }
+
+            _documentoCorreccionNCFManager.BulkUpdateAll(listdocumentoCorreccionNCFs.ToArray());
+            _documentoCorreccionNCFManager.Commit();
+
+        }
+
+
+        /// <summary>
+        /// Metodo para realizar el ajuste de los documentos enviados a Sap
+        /// </summary>
+        /// <param name="IdSolicitud">IdSolicitud de correccion</param>
+        /// <param name="respuestSap">respuesta procesamiento sap</param>
+        private void ActulizarEstadoCancelacion(int IdSolicitud, ZMF_POSTEO_CORRECCIONESResponse1 respuestSap)
+        {
+            var listdocumentoCorreccionNCFs = _documentoOriginalNCFManager.GetAll().Where(t => t.IdSupport == IdSolicitud).ToList();
+            foreach (var item in listdocumentoCorreccionNCFs)
+            {
+                item.EnviadoSap = respuestSap.ZMF_POSTEO_CORRECCIONESResponse != null;
+                item.RespuestaSap = respuestSap.ZMF_POSTEO_CORRECCIONESResponse == null ? "Fallo envio Sap" : respuestSap.ZMF_POSTEO_CORRECCIONESResponse.ToString();
+            }
+
+            _documentoOriginalNCFManager.BulkUpdateAll(listdocumentoCorreccionNCFs.ToArray());
+            _documentoOriginalNCFManager.Commit();
+
+        }
+
+        /// <summary>
         /// Metodo para realizar le mapeo de datos en caso de haber interes financiero
         /// </summary>
         /// <param name="documentoCorrecionDto"></param>
         /// <returns></returns>
         private DocumentoOriginalNCF MapInteresFinanciero(DocumentoOriginalDto documentocorreccion)
         {
-            var docOriginallDto = new DocumentoOriginalNCF();
-            docOriginallDto.FreeGoods = 0;
-            docOriginallDto.DescuentoAmount = 0;
-            docOriginallDto.BrutoTotal = 0;
+            var docOriginallDto = new DocumentoOriginalNCF
+            {
+                FreeGoods = 0,
+                DescuentoAmount = 0,
+                BrutoTotal = 0
+            };
             docOriginallDto.DescuentoAmount = 0;
             docOriginallDto.TaxAmount = 0;
             docOriginallDto.Isc = 0;

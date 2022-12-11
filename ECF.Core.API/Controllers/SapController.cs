@@ -17,9 +17,19 @@ namespace ECF.Core.API.Controllers
         }
         // GET: api/<SapController>
         [HttpGet]
-        public IActionResult Get()
+        [Route("DocmentoOrigianl")]
+        public IActionResult GetDocmentoOriginal()
         {
             var resultadoConsultaDocumento = _accionesSap.DocumentoOriginalNCF();
+            return Ok(resultadoConsultaDocumento);
+        }
+
+        // GET: api/<SapController>
+        [HttpGet]
+        [Route("DocumentoCoreccion")]
+        public IActionResult GetDocumentoCoreccion()
+        {
+            var resultadoConsultaDocumento = _accionesSap.DocumentoCorreccionNCF();
             return Ok(resultadoConsultaDocumento);
         }
 

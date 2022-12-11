@@ -82,7 +82,6 @@ namespace ECF.Core.applications.Base
             }
             catch (Exception ex)
             {
-                _channelFactory.Close();
                 return (false, respuesta);
             }
         }
@@ -129,7 +128,6 @@ namespace ECF.Core.applications.Base
             }
             catch (Exception)
             {
-                _channelFactory.Close();
                 return (false, respuestaAjuste);
             }
         }

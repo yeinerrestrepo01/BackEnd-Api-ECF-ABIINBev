@@ -5,5 +5,7 @@ namespace ECF.Core.applications.Core.Interfaces.EventosSap
     public interface IAccionesSap
     {
         List<DocumentoOriginalNCFDto> DocumentoOriginalNCF();
+        List<DocumentoCorreccionNCFDto> DocumentoCorreccionNCF();
+
     }
 }
