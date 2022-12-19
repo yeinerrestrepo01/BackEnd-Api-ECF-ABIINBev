@@ -35,7 +35,7 @@ namespace ECF.Core.applications.WebApi
             services.AddScoped<IInvoiceSettingManager, InvoiceSettingManager>();
             services.AddScoped<ISolitudSoporteDocumentoManager, SolitudSoporteDocumentoManager>();
             services.AddScoped<ICorreccionDocumentosManager, CorreccionDocumentosManager>();
-            services.AddScoped<IConfiguracionTipoNCFManager, ConfiguracionTipoNCFManager>();
+            services.AddScoped<IConfiguracionTipoNcfManager, ConfiguracionTipoNcfManager>();
             services.AddScoped<IDocumentoOriginalNCFManager, DocumentoOriginalNCFManager>();
             services.AddScoped<IDocumentoCorreccionNCFManager, DocumentoCorreccionNCFManager>();
             services.AddScoped<IAnulacionDocumentosManager, AnulacionDocumentosManager>();

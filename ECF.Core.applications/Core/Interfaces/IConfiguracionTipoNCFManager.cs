@@ -3,8 +3,10 @@ using ECF.Core.Entities.Entity;
 
 namespace ECF.Core.applications.Core.Interfaces
 {
-    public interface IConfiguracionTipoNCFManager : IEntityManager<ConfiguracionTipoNCF>
+    public interface IConfiguracionTipoNcfManager : IEntityManager<ConfiguracionTipoNCF>
     {
         List<ConfiguracionTipoNCF> ObtenerConfiguracionTipoNCFEmpresa(string empresa);
+
+        List<ConfiguracionTipoNCF> ObtenerConfiguracionTipoNCFEmpresa();
     }
 }

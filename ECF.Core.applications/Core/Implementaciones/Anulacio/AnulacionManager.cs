@@ -11,7 +11,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
     {
         private readonly IAnulacionDocumentosManager _anulacionDocumentosManager;
 
-        private readonly IConfiguracionTipoNCFManager _configuracionTipoNCFManager;
+        private readonly IConfiguracionTipoNcfManager _configuracionTipoNCFManager;
 
         private readonly ISolitudSoporteDocumentoManager _solitudSoporteDocumentoManager;
 
@@ -30,7 +30,7 @@ namespace ECF.Core.applications.Core.Implementaciones.Anulacio
         /// <param name="mapper"></param>
         /// <param name="documentoCorreccionNCFManager"></param>
         public AnulacionManager(ICorreccionDocumentosManager correccionDocumentosManager,
-            IConfiguracionTipoNCFManager configuracionTipoNCFManager,
+            IConfiguracionTipoNcfManager configuracionTipoNCFManager,
             ISolitudSoporteDocumentoManager solitudSoporteDocumentoManager,
             IMapper mapper,
             IDocumentoCorreccionNCFManager documentoCorreccionNCFManager,

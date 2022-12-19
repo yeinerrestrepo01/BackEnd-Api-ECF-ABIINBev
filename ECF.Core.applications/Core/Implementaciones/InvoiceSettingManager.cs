@@ -16,7 +16,7 @@ namespace ECF.Core.applications.Core.Implementaciones
     {
         private readonly ICorreccionDocumentosManager _correccionDocumentosManager;
 
-        private readonly IConfiguracionTipoNCFManager _configuracionTipoNCFManager;
+        private readonly IConfiguracionTipoNcfManager _configuracionTipoNCFManager;
 
         private readonly IVitsaConsultaFacturasManager _vitsaConsultaFacturasManager;
 
@@ -42,7 +42,7 @@ namespace ECF.Core.applications.Core.Implementaciones
         /// <param name="documentoCorreccionNCFManager"></param>
         public InvoiceSettingManager(
             ICorreccionDocumentosManager correccionDocumentosManager,
-            IConfiguracionTipoNCFManager configuracionTipoNCFManager,
+            IConfiguracionTipoNcfManager configuracionTipoNCFManager,
             IVitsaConsultaFacturasManager vitsaConsultaFacturasManager,
             ISolitudSoporteDocumentoManager solitudSoporteDocumentoManager,
             IMapper mapper, IDocumentoOriginalNCFManager documentoOriginalNCFManager,
