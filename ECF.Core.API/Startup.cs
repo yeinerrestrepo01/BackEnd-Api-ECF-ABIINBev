@@ -44,11 +44,19 @@ namespace ECF.Core.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api ECF");
+                });
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("../swagger/v1/swagger.json", "Api ECF");
+                });
             };
             app.UseCors("MyPolicy");
             app.UseHttpsRedirection();
