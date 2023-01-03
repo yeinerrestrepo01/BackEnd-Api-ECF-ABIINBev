@@ -17,7 +17,7 @@ namespace ECF.Core.API.Controllers
         }
         // GET: api/<SapController>
         [HttpGet]
-        [Route("DocmentoOrigianl")]
+        [Route("DocmentoOriginal")]
         public IActionResult GetDocmentoOriginal()
         {
             var resultadoConsultaDocumento = _accionesSap.DocumentoOriginalNCF();

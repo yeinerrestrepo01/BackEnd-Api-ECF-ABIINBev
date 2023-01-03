@@ -19,8 +19,6 @@ namespace ECF.Core.API.Controllers
             var a = ContextType.Domain;
             PrincipalContext ctxModelo = new PrincipalContext(ContextType.Domain,"modelo.gmodelo.com.mx");
             IsValid = ctxModelo.ValidateCredentials("yjmerino", "22222222");
-
-
         }
     }
 }
